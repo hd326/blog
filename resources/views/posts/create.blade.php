@@ -9,8 +9,7 @@
             <h1>Create New Post</h1>
             <hr>
             <form method="POST" action="{{ route('posts.store') }}">
-                @csrf
-                @method('POST')
+              {{ csrf_field() }}
                 <div class="form-group">
                   <label name="title">Title:</label>
                   <input id="title" name="title" class="form-control">
@@ -20,7 +19,6 @@
                   <textarea id="body" name="body" rows="10" class="form-control"></textarea>
                 </div>
                 <input type="submit" value="Create Post" class="btn btn-success btn-lg btn-block">
-                <input type="hidden" name="_token" value="{{ Session::token() }}">
             </form>
         </div>
     </div>

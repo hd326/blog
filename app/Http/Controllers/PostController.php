@@ -13,9 +13,12 @@ class PostController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Post $post)
     {
-        //
+        $posts = Post::all();
+
+        dd($posts);
+        return view('pages.welcome')->with('posts', $posts);
     }
 
     /**
@@ -61,7 +64,8 @@ class PostController extends Controller
      */
     public function show($id)
     {
-        return view('posts.show');
+        $post = Post::find($id);
+        return view('posts.show')->with('post', $post);
     }
 
     /**
