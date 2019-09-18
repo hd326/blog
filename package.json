@@ -1,4 +1,7 @@
 {
+    "require": {
+        "laravelcollective/html": "5.2.*"
+    },
     "private": true,
     "scripts": {
         "dev": "npm run development",

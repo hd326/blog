@@ -21,6 +21,7 @@
     @include('partials._nav')
 
     <div class="container">
+        @include('partials._messages')
         @yield('content')
         <!-- yield this area, this area will be different -->
         @include('partials._footer')
