@@ -1,5 +1,6 @@
 <?php
 namespace App\Http\Controllers;
+use App\Post;
 
 class PagesController extends Controller {
     public function index() {
@@ -8,7 +9,8 @@ class PagesController extends Controller {
         #receive from the model
         #compile or process data from model
         #pass that to correct view
-        return view('pages.welcome');
+        $posts = Post::orderBy('created_at', 'desc')->limit(4)->get();
+        return view('pages.welcome')->with('posts', $posts);
     }
 
     public function about() {

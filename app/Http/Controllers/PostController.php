@@ -5,9 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Session;
 use App\Post;
+use App\Tag;
+use App\Category;
+use Carbon\Carbon;
 
 class PostController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -15,10 +22,9 @@ class PostController extends Controller
      */
     public function index(Post $post)
     {
-        $posts = Post::all();
+        $posts = Post::orderBy('id', 'desc')->paginate(10);
 
-        dd($posts);
-        return view('pages.welcome')->with('posts', $posts);
+        return view('posts.index')->with('posts', $posts);
     }
 
     /**
@@ -28,7 +34,9 @@ class PostController extends Controller
      */
     public function create()
     {
-        return view('posts.create');
+        $categories = Category::all();
+        $tags = Tag::all();
+        return view('posts.create')->with('categories', $categories)->with('tags', $tags);
     }
 
     /**
@@ -39,18 +47,25 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        
+
         // validate our data
         $this->validate($request, array(
             'title' => 'required|max:255',
-            'body' => 'required'
+            'slug' => 'required|alpha_dash|min:5|max:255|unique:posts,slug',
+            'body' => 'required',
+            'category_id' => 'required|integer'
         ));
         // store in database
         $post = new Post;
         $post->title = $request->title;
+        $post->slug = $request->slug;
         $post->body = $request->body;
+        $post->category_id = $request->category_id;
         $post->save();
         // redirect to another page
-
+        $post->tags()->sync($request->tags,false);
+        // syncs the post with the tags in our table
         Session::flash('success', 'The blog post was successfully saved!');
 
         return redirect()->route('posts.show', $post->id);
@@ -76,7 +91,10 @@ class PostController extends Controller
      */
     public function edit($id)
     {
-        //
+        $post = Post::find($id);
+        $categories = Category::all();
+        $tags = Tag::all();
+        return view('posts.edit')->with('post', $post)->with('categories', $categories)->with('tags', $tags);
     }
 
     /**
@@ -88,7 +106,26 @@ class PostController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        // Validate the data
+        $post = Post::find($id);
+        $post->update(request()->validate([
+            'title' => 'required|max:255',
+            'slug' => 'required|alpha_dash|min:5|max:255|unique:posts,slug,' . $id,
+            'body' => 'required'
+        ]));
+        // Save data to database
+        $post->title = $request->input('title');
+        $post->slug = $request->input('slug');
+        $post->body = $request->input('body');
+        $post->category_id = $request->input('category_id');
+        $post->save();
+
+        $post->tags()->sync($request->tags, true);
+        // Set flash data with success message
+
+        Session::flash('success', 'The blog post was successfully updated!');
+        // Redirect with Flash data to posts show
+        return redirect()->route('posts.show', $post->id);
     }
 
     /**
@@ -99,6 +136,12 @@ class PostController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $post = Post::find($id);
+        $post->tags()->detach();
+        $post->delete();
+
+        Session::flash('success', 'The blog post was successfully deleted!');
+
+        return redirect()->route('posts.index');
     }
 }
