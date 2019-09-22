@@ -14,7 +14,7 @@
 {{-- mine vs --}}
 
 <div class="row">
-  <form action="{{ route('posts.update', $post->id) }}" method="POST">
+  <form action="{{ route('posts.update', $post->id) }}" method="POST" enctype="multipart/form-data">
     {{ csrf_field() }}
     {{ method_field('PUT') }}
     <div class="col-md-8">
@@ -44,6 +44,12 @@
             @endforeach
           </select>
         </div>
+
+        <label class="btn btn-primary" for="featured_image">
+            <input name="featured_image" id="featured_image" type="file" style="display:none"
+              onchange="$('#upload-file-info').html(this.files[0].name)">
+            Browse... </label>
+          <span class='label label-info' id="upload-file-info">File Name:</span>
 
       <div class="form-group">
         <label name="body">Post Body:</label>

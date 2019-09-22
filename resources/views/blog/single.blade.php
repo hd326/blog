@@ -5,6 +5,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-8 col-md-offset-2">
+            <img src="{{ asset('images/'. $post->image) }}"> 
             <h1>{{ $post->title }}</h1>
             <p>{!! $post->body !!}</p>
             <hr>
@@ -53,8 +54,6 @@
                         <label for="comment">Comment:</label>
                         <textarea name="comment" class="form-control" placeholder="Enter a comment..."></textarea>
                     </div>
-                    
-                    
                 </div>
                 <br/>
                 <input type="submit" value="Add Comment" class="btn btn-success btn-block">

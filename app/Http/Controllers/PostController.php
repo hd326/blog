@@ -9,6 +9,8 @@ use App\Tag;
 use App\Category;
 use Carbon\Carbon;
 use Purifier;
+use Image;
+use Storage;
 
 class PostController extends Controller
 {
@@ -55,7 +57,8 @@ class PostController extends Controller
             'title' => 'required|max:255',
             'slug' => 'required|alpha_dash|min:5|max:255|unique:posts,slug',
             'body' => 'required',
-            'category_id' => 'required|integer'
+            'category_id' => 'required|integer',
+            'featured_image' => 'sometimes|image'
         ));
         // store in database
         $post = new Post;
@@ -63,6 +66,17 @@ class PostController extends Controller
         $post->slug = $request->slug;
         $post->body = $request->body;
         $post->category_id = Purifier::clean($request->category_id);
+
+        // save our image
+        if( $request->hasFile('featured_image')) {
+            $image = $request->file('featured_image');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            $location = public_path('images/' . $filename);
+            Image::make($image)->resize(800, 400)->save($location);
+
+            $post->image = $filename;
+        }
+
         $post->save();
         // redirect to another page
         $post->tags()->sync($request->tags,false);
@@ -109,16 +123,33 @@ class PostController extends Controller
     {
         // Validate the data
         $post = Post::find($id);
-        $post->update(request()->validate([
+        request()->validate([
             'title' => 'required|max:255',
             'slug' => 'required|alpha_dash|min:5|max:255|unique:posts,slug,' . $id,
-            'body' => 'required'
-        ]));
+            'category_id' => 'required|integer',
+            'body' => 'required',
+            'featured_image' => 'image'
+        ]);
         // Save data to database
         $post->title = $request->input('title');
         $post->slug = $request->input('slug');
         $post->body = Purifier::clean($request->input('body'));
         $post->category_id = $request->input('category_id');
+
+        if($request->hasFile('featured_image')) {
+            
+            // add the new photo
+            $image = $request->file('featured_image');
+            $filename = time() . '.' . $image->getClientOriginalExtension();
+            $location = public_path('images/' . $filename);
+            Image::make($image)->resize(800, 400)->save($location);
+            $oldFilename = $post->image;
+            // update database to reflect
+            $post->image = $filename;
+            // delete old photo
+            Storage::delete($oldFilename);
+        }
+
         $post->save();
 
         $post->tags()->sync($request->tags, true);
@@ -139,6 +170,7 @@ class PostController extends Controller
     {
         $post = Post::find($id);
         $post->tags()->detach();
+        Storage::delete($post->image);
         $post->delete();
 
         Session::flash('success', 'The blog post was successfully deleted!');

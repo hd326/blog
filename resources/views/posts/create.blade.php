@@ -8,7 +8,7 @@
   <div class="col-md-8 col-md-offset-2">
     <h1>Create New Post</h1>
     <hr>
-    <form method="POST" action="{{ route('posts.store') }}">
+    <form method="POST" action="{{ route('posts.store') }}" enctype="multipart/form-data">
       {{ csrf_field() }}
       <div class="form-group">
         <label name="title">Title:</label>
@@ -26,6 +26,12 @@
           @endforeach
         </select>
       </div>
+
+      <label class="btn btn-primary" for="featured_image">
+        <input name="featured_image" id="featured_image" type="file" style="display:none"
+          onchange="$('#upload-file-info').html(this.files[0].name)">
+        Browse... </label>
+      <span class='label label-info' id="upload-file-info">File Name:</span>
 
       <div class="form-group">
         <label name="category">Category:</label>
@@ -56,8 +62,8 @@
 </script>
 <script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
 <script>
-tinymce.init({
-  selector: 'textarea'
-});
+  tinymce.init({
+    selector: 'textarea'
+  });
 </script>
 @endsection
