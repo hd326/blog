@@ -1,9 +1,13 @@
 <?php
 namespace App\Http\Controllers;
+use Illuminate\Http\Request;
 use App\Post;
+use Mail;
+use Session;
 
 class PagesController extends Controller {
-    public function index() {
+    public function index() 
+    {
         #process variable data or params
         #talk to the model
         #receive from the model
@@ -13,7 +17,8 @@ class PagesController extends Controller {
         return view('pages.welcome')->with('posts', $posts);
     }
 
-    public function about() {
+    public function about() 
+    {
         $first = 'Richard';
         $last = 'Duong';
         $fullname = $first . " " . $last;
@@ -25,7 +30,32 @@ class PagesController extends Controller {
         return view('pages.about')->withFullname($fullname)->withEmail($email);
     }
 
-    public function contact() {
+    public function contact() 
+    {
+        return view('pages.contact');
+    }
+
+    public function postContact(Request $request)
+    {
+        request()->validate([
+            'email' => 'required|email',
+            'subject' => 'min:3',
+            'message' => 'min:10'
+        ]);
+
+        $data = array(
+            'email' => $request->email,
+            'subject' => $request->subject,
+            'bodyMessage' => $request->message
+        );
+
+        Mail::send('emails.contact', $data, function($message) use ($data) {
+            $message->from($data['email']);
+            $message->to('r_duong89@yahoo.com');
+            $message->subject($data['subject']);
+        });
+
+        Session::flash('success', 'Your Email was Sent!');
         return view('pages.contact');
     }
 

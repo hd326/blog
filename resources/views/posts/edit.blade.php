@@ -85,4 +85,10 @@
     $('.select2-multi').select2().val({{ $post->tags->pluck('id') }}).trigger('change');
   });
 </script>
+<script src="https://cdn.tiny.cloud/1/no-api-key/tinymce/5/tinymce.min.js" referrerpolicy="origin"></script>
+<script>
+tinymce.init({
+  selector: 'textarea'
+});
+</script>
 @endsection

@@ -8,6 +8,7 @@ use App\Post;
 use App\Tag;
 use App\Category;
 use Carbon\Carbon;
+use Purifier;
 
 class PostController extends Controller
 {
@@ -61,7 +62,7 @@ class PostController extends Controller
         $post->title = $request->title;
         $post->slug = $request->slug;
         $post->body = $request->body;
-        $post->category_id = $request->category_id;
+        $post->category_id = Purifier::clean($request->category_id);
         $post->save();
         // redirect to another page
         $post->tags()->sync($request->tags,false);
@@ -116,7 +117,7 @@ class PostController extends Controller
         // Save data to database
         $post->title = $request->input('title');
         $post->slug = $request->input('slug');
-        $post->body = $request->input('body');
+        $post->body = Purifier::clean($request->input('body'));
         $post->category_id = $request->input('category_id');
         $post->save();
 
